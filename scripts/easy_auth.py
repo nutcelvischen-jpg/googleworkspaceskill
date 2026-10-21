@@ -34,7 +34,7 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
-DEFAULT_LANG = "zh"
+DEFAULT_LANG = "en"
 
 # Public OAuth client of Google's open-source @google/clasp CLI (not a personal secret).
 CLIENT_ID = "1072944905499-vm2v2i5dvn0a0d2o4ca36i1vge8cvbn0.apps.googleusercontent.com"

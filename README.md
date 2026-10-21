@@ -1,94 +1,94 @@
-# 🎓 Google Workspace 一鍵授權技能（google-easy-auth）
+# 🎓 Google Workspace one-click authorization skill (google-easy-auth)
 
-**繁體中文** | [English](https://github.com/nutcelvischen-jpg/googleworkspaceskill/tree/en)
+[繁體中文](https://github.com/nutcelvischen-jpg/googleworkspaceskill/tree/main) | **English**
 
-讓學生**一步**把 Google 帳號（Drive、Sheets、Docs、Slides、Gmail、Calendar、Apps Script）連到 AI 助手。
-學生只要「點連結 → 打勾 → 按繼續」，其餘交給 AI。
+Lets students connect their Google account (Drive, Sheets, Docs, Slides, Gmail, Calendar, Apps Script) to an AI assistant **in one step**.
+The student only clicks a link → ticks boxes → clicks Continue. The AI does the rest.
 
 ---
 
-## 🚀 學生只要做這一步
+## 🚀 The one step students do
 
-把下面這段話**整段複製**，貼給 Antigravity、Claude Code 或 Codex：
+Copy this **whole message** and paste it into Antigravity, Claude Code or Codex:
 
 ```text
-請把 https://github.com/nutcelvischen-jpg/googleworkspaceskill 安裝成技能（google-easy-auth），
-照 SKILL.md 幫我完成 Google Workspace 授權。
+Install https://github.com/nutcelvischen-jpg/googleworkspaceskill (branch: en) as a skill (google-easy-auth)
+and follow its SKILL.md to authorize my Google Workspace account.
 ```
 
-AI 會：
-1. 下載技能並檢查 Python
-2. 在聊天中貼出**只需要打勾的授權清單**和授權連結
-3. 自動開瀏覽器，等你按完
-4. 檢查有沒有漏勾，漏了會告訴你缺哪幾項
-5. 寫好憑證與 MCP 設定
+The AI will:
+1. Download the skill and check Python
+2. Post a **tick-box permission checklist** and the authorization link in chat
+3. Open your browser and wait for you
+4. Check nothing was left unticked, and tell you exactly what is missing if so
+5. Write the credentials and the MCP config
 
-你在 Google 畫面上只要：
-- [ ] 選個人 **@gmail.com** 帳號
-- [ ] 看到「尚未驗證」→ 點 **進階** → **前往…（不安全）**
-- [ ] 權限頁點【**全選**】→ **繼續**
+On Google's screens you only:
+- [ ] Choose a personal **@gmail.com** account
+- [ ] If you see "not verified" → click **Advanced** → **Go to … (unsafe)**
+- [ ] On the permissions page click [**Select all**] → **Continue**
 
-> ⚠️ 授權前先打開 [Apps Script API 開關](https://script.google.com/home/usersettings)（切到 On）。
+> ⚠️ Before you start, turn on the [Apps Script API switch](https://script.google.com/home/usersettings) (set it to On).
 
 ---
 
-## 支援的 AI 工具
+## Supported AI tools
 
-| 工具 | 可以一步完成？ | 說明 |
+| Tool | One step? | Notes |
 |---|---|---|
-| Google Antigravity | ✅ | 寫入 `~/.gemini/config/mcp_config.json` |
-| Claude Code / Claude 桌面版（可執行本機指令） | ✅ | 精靈加 `--claude`，註冊到 Claude Code |
-| OpenAI Codex | ✅ | 精靈加 `--codex`，寫入 `~/.codex/config.toml` |
-| ChatGPT / Claude **網頁版** | ❌ | 無法在你的電腦執行程式，只能看步驟說明 |
+| Google Antigravity | ✅ | Writes `~/.gemini/config/mcp_config.json` |
+| Claude Code / Claude desktop (can run local commands) | ✅ | Wizard with `--claude` registers it in Claude Code |
+| OpenAI Codex | ✅ | Wizard with `--codex` writes `~/.codex/config.toml` |
+| ChatGPT / Claude **in a web browser** | ❌ | Cannot run programs on your computer; can only explain the steps |
 
-## 手動安裝（老師或進階使用者）
+## Manual install (teachers or advanced users)
 
 ```bash
 # Antigravity
-git clone https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.gemini/skills/google-easy-auth
+git clone -b en https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.gemini/skills/google-easy-auth
 # Claude Code
-git clone https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.claude/skills/google-easy-auth
+git clone -b en https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.claude/skills/google-easy-auth
 # Codex
-git clone https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.codex/skills/google-easy-auth
+git clone -b en https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.codex/skills/google-easy-auth
 ```
-英文版：在 `git clone` 後加 `-b en`。
+For the Traditional Chinese version, leave out `-b en`.
 
-直接執行（Windows / macOS / Linux 都可，只需 Python 3.8+）：
+Run directly (Windows / macOS / Linux, Python 3.8+ only):
 ```bash
-python scripts/easy_auth.py          # 授權
-python scripts/check_status.py       # 健康檢查（不會在你的帳號建立任何東西）
+python scripts/easy_auth.py          # authorize
+python scripts/check_status.py       # health check (creates nothing in your account)
 ```
 
-| 參數 | 用途 |
+| Flag | Purpose |
 |---|---|
-| `--print-url` | 只印出授權清單與連結 |
-| `--claude` / `--codex` | 同時註冊到 Claude Code / Codex |
-| `--port 54322` | 54321 被佔用時改用 |
-| `--lang en` | 英文輸出 |
+| `--print-url` | Only print the checklist and link |
+| `--claude` / `--codex` | Also register in Claude Code / Codex |
+| `--port 54322` | Use another port if 54321 is busy |
+| `--lang zh` | Traditional Chinese output |
 
 ---
 
-## 📂 檔案結構
+## 📂 Structure
 
 ```text
 googleworkspaceskill/
-├── SKILL.md                              # 給 AI 的操作規則與聊天輸出範本
-├── README.md                             # 本說明
-├── references/student_oauth_cheatsheet.md # 4 個畫面圖解 + 錯誤對照表
+├── SKILL.md                              # Rules and chat template for the AI
+├── README.md                             # This file
+├── references/student_oauth_cheatsheet.md # The 4 screens + error table
 └── scripts/
-    ├── easy_auth.py                      # 一鍵授權精靈
-    └── check_status.py                   # 授權健康檢查
+    ├── easy_auth.py                      # One-click authorization wizard
+    └── check_status.py                   # Authorization health check
 ```
 
-## 🔒 安全說明
-- 使用 Google 開源工具 `@google/clasp` 的公開 OAuth Client，不含任何個人金鑰。
-- Token 只存在你自己的電腦（`~/.clasprc.json`、MCP 設定），不會上傳。
-- 取消授權：[myaccount.google.com/permissions](https://myaccount.google.com/permissions)。
-- 本 repo 的 `.gitignore` 已排除憑證檔，請勿把它們加進 git。
+## 🔒 Security
+- Uses the public OAuth client of Google's open-source `@google/clasp` tool; no personal keys are included.
+- Tokens stay on your own computer (`~/.clasprc.json`, MCP config) and are never uploaded.
+- Remove access any time: [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
+- The repo's `.gitignore` excludes credential files; never add them to git.
 
-## 相關技能
-- 授權完成後要用 Apps Script 發布網頁（打卡系統等）：[appscript_skill](https://github.com/nutcelvischen-jpg/appscript_skill)
-- MCP 伺服器：[google-workspace-mcp](https://pypi.org/project/google-workspace-mcp/)（Arclio，MIT）
+## Related
+- Publish an Apps Script web app (clock-in system, etc.) after authorizing: [appscript_skill](https://github.com/nutcelvischen-jpg/appscript_skill/tree/en)
+- MCP server: [google-workspace-mcp](https://pypi.org/project/google-workspace-mcp/) (Arclio, MIT)
 
-## 授權
-Apache 2.0。歡迎各級學校用於資訊課程與專題教學。
+## License
+Apache 2.0. Schools and universities are welcome to use it for IT courses and project teaching.
