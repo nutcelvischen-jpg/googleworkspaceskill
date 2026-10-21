@@ -1,0 +1,12 @@
+# Credentials — never commit
+.clasprc.json
+*.token.json
+token.json
+mcp_config.json
+*.bak
+
+# OS / temp
+.DS_Store
+Thumbs.db
+__pycache__/
+*.log
