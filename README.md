@@ -32,6 +32,31 @@ On Google's screens you only:
 
 ---
 
+## ⚠️ Not fully automatic: what students still do themselves
+
+The AI runs everything it can, but Google does not allow the steps below to be done for the student, and a few situations can stop the flow.
+
+**Students must do these themselves**
+1. Turn on the [Apps Script API switch](https://script.google.com/home/usersettings) (set it to On)
+2. Choose an account; if you see "not verified" → click **Advanced** → **Go to … (unsafe)**
+3. On the permissions page click [**Select all**] → **Continue**
+4. After authorizing, **restart the AI tool** so the Google tools appear
+
+**Where it can get stuck**
+| Situation | What to do |
+|---|---|
+| The AI asks permission before running a command | Click "Allow" |
+| Python isn't installed and the installer asks for admin rights | Click "Yes"; if a school computer blocks installs, use your own computer |
+| A school account (e.g. @mail.edu.tw) shows "Access blocked" | Use a personal @gmail.com account |
+| "This app is blocked" appears (no Advanced option) | Try a different personal Gmail account |
+| Using ChatGPT / Claude **in a web browser** | Not supported; use Antigravity, Claude Code or Codex |
+
+If a permission is left unticked or the API switch is Off, the wizard and health check point it out and the AI walks you through fixing it.
+
+> 🧑‍🏫 For teachers: before class, run the whole flow once on a Windows and a Mac computer, each with a fresh personal Gmail account.
+
+---
+
 ## Supported AI tools
 
 | Tool | One step? | Notes |
