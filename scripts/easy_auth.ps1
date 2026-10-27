@@ -49,6 +49,34 @@ if ($PrintUrl) {
   exit 0
 }
 
+function Open-InChrome {
+  param([string]$Url)
+  $chromeCandidates = @(
+    (Join-Path $env:ProgramFiles "Google\Chrome\Application\chrome.exe"),
+    (Join-Path ${env:ProgramFiles(x86)} "Google\Chrome\Application\chrome.exe"),
+    (Join-Path $env:LOCALAPPDATA "Google\Chrome\Application\chrome.exe")
+  )
+  foreach ($p in $chromeCandidates) {
+    if ($p -and (Test-Path $p)) {
+      Start-Process -FilePath $p -ArgumentList @("--new-window", $Url)
+      Write-Host "🌐 已於獨立 Google Chrome 視窗開啟授權頁面..." -ForegroundColor Cyan
+      return
+    }
+  }
+  try {
+    $cmd = Get-Command chrome.exe -ErrorAction SilentlyContinue
+    if ($cmd) {
+      Start-Process "chrome.exe" -ArgumentList @("--new-window", $Url)
+      Write-Host "🌐 已於 Google Chrome 開啟授權頁面..." -ForegroundColor Cyan
+      return
+    }
+  } catch {}
+
+  # 若未安裝 Chrome 則回退至系統預設瀏覽器
+  Start-Process $Url
+  Write-Host "🌐 已開啟預設瀏覽器授權頁面..." -ForegroundColor Cyan
+}
+
 # 啟動本機 HTTP 監聽器
 $Listener = New-Object System.Net.HttpListener
 try {
@@ -62,7 +90,7 @@ try {
 
 Write-Host "⏳ 正在等待瀏覽器完成授權（最多等待 $Timeout 秒）..." -ForegroundColor Green
 if (-not $NoBrowser) {
-  Start-Process $AuthUrl
+  Open-InChrome $AuthUrl
 }
 
 $AsyncResult = $Listener.BeginGetContext($null, $null)

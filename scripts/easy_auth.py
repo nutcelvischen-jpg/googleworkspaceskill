@@ -152,6 +152,45 @@ def build_auth_url(redirect_uri, client_id=CLIENT_ID):
     return "https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode(q, quote_via=urllib.parse.quote)
 
 
+def open_in_chrome(url):
+    """優先使用獨立 Google Chrome 視窗開啟，避免內建 Webview / 舊版瀏覽器攔截"""
+    if sys.platform == "win32":
+        candidates = [
+            Path(os.environ.get("ProgramFiles", "")) / "Google" / "Chrome" / "Application" / "chrome.exe",
+            Path(os.environ.get("ProgramFiles(x86)", "")) / "Google" / "Chrome" / "Application" / "chrome.exe",
+            Path(os.environ.get("LOCALAPPDATA", "")) / "Google" / "Chrome" / "Application" / "chrome.exe",
+        ]
+        for c in candidates:
+            if c.exists():
+                try:
+                    subprocess.Popen([str(c), "--new-window", url])
+                    return
+                except Exception:
+                    pass
+        if shutil.which("chrome"):
+            try:
+                subprocess.Popen(["chrome", "--new-window", url])
+                return
+            except Exception:
+                pass
+    elif sys.platform == "darwin":
+        if Path("/Applications/Google Chrome.app").exists():
+            try:
+                subprocess.Popen(["open", "-na", "Google Chrome", "--args", "--new-window", url])
+                return
+            except Exception:
+                pass
+    elif sys.platform.startswith("linux"):
+        for cmd in ["google-chrome", "google-chrome-stable", "chromium-browser"]:
+            if shutil.which(cmd):
+                try:
+                    subprocess.Popen([cmd, "--new-window", url])
+                    return
+                except Exception:
+                    pass
+    webbrowser.open(url)
+
+
 def print_checklist(t, lang, url):
     print("=" * 64)
     print(t["title"])
@@ -352,7 +391,7 @@ def main():
 
     print(t["wait"].format(s=a.timeout))
     if not a.no_browser:
-        threading.Timer(0.5, lambda: webbrowser.open(url)).start()
+        threading.Timer(0.5, lambda: open_in_chrome(url)).start()
     res = wait_for_code(a.port, a.timeout, t, a.lang)
     if "code" not in res:
         print(t["timeout"])
