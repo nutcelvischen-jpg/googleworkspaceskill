@@ -60,17 +60,17 @@ T = {
         "title": "🎓 Google Workspace 一鍵授權精靈",
         "step0": "【0】先確認 Apps Script API 開關為 On：https://script.google.com/home/usersettings",
         "step1": "【1】出現「Google 尚未驗證這個應用程式」→ 點左下「進階」→「前往…（不安全）」",
-        "step2": "【2】權限頁面請點【全選】，或把下面每一格都打勾，再按「繼續」：",
+        "step2": "【2】權限頁面請點【全選】（⚠️ 必點！Google 預設全部空白，不能直接按繼續）：",
         "note": "（實際文字以 Google 畫面為準）",
         "link": "👉 授權連結（瀏覽器沒自動打開就點這裡）：",
         "wait": "等待瀏覽器完成授權（最多 {s} 秒）…",
-        "port_busy": "❌ 連接埠 {p} 被佔用，請改用：python easy_auth.py --port 54322",
+        "port_busy": "❌ 連接埠 {p} 被佔用，請關閉先前視窗或稍後重試。",
         "timeout": "❌ 授權逾時，請重新執行一次。",
         "denied": "❌ 授權被取消或失敗：{e}",
         "ok_page_t": "授權已順利完成！",
         "ok_page_b": "Google 帳號連線成功",
         "ok_page_p": "可以關閉這個分頁，回到 AI 聊天視窗了。",
-        "missing": "⚠️ 以下權限沒有打勾，請重新執行並按【全選】：",
+        "missing": "⚠️ 警告：以下權限沒有打勾！\n（原因：在 Google 權限頁面直接按了「繼續」，未按全選。請重新執行並務必點選【全選】）：",
         "all_ok": "✅ 所有權限都已勾選",
         "saved_clasp": "✅ 已儲存 Apps Script 憑證：{p}",
         "saved_mcp": "✅ 已合併寫入 Antigravity MCP 設定（其他 MCP 保留不動）：{p}",
@@ -119,12 +119,33 @@ def label(scope_row, lang):
     return scope_row[1] if lang == "zh" else scope_row[2]
 
 
-def build_auth_url(redirect_uri):
+def resolve_credentials(a):
+    client_id = a.client_id or os.environ.get("GOOGLE_CLIENT_ID")
+    client_secret = a.client_secret or os.environ.get("GOOGLE_CLIENT_SECRET")
+    cred_path = a.credentials
+    if not cred_path:
+        for pattern in ["client_secret*.json", "credentials*.json"]:
+            matches = list(Path.cwd().glob(pattern)) + list((Path(__file__).parent.parent).glob(pattern))
+            if matches:
+                cred_path = matches[0]
+                break
+    if cred_path and Path(cred_path).exists():
+        try:
+            data = json.loads(Path(cred_path).read_text(encoding="utf-8-sig"))
+            c = data.get("installed") or data.get("web") or data
+            client_id = c.get("client_id") or client_id
+            client_secret = c.get("client_secret") or client_secret
+        except Exception as e:
+            print(f"⚠️ 讀取憑證檔案失敗：{e}")
+    return client_id or CLIENT_ID, client_secret or CLIENT_SECRET
+
+
+def build_auth_url(redirect_uri, client_id=CLIENT_ID):
     q = {
         "access_type": "offline",
         "prompt": "consent",
         "response_type": "code",
-        "client_id": CLIENT_ID,
+        "client_id": client_id,
         "redirect_uri": redirect_uri,
         "scope": " ".join(s[0] for s in SCOPES),
     }
@@ -148,14 +169,22 @@ def print_checklist(t, lang, url):
 
 
 def success_html(t, lang):
+    btn_text = "檢查 Apps Script API 開關 ↗" if lang == "zh" else "Check Apps Script API Switch ↗"
+    btn_tip = "⚠️ 若後續需要發布 Apps Script 打卡網頁，請確保開關為 On：" if lang == "zh" else "Note: Turn on Apps Script API if you plan to deploy web apps:"
     return f"""<!DOCTYPE html><html lang="{'zh-TW' if lang == 'zh' else 'en'}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{t['ok_page_t']}</title>
 <style>body{{font-family:-apple-system,"Segoe UI",sans-serif;background:#f1f5f9;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px}}
-.c{{background:#fff;max-width:460px;padding:40px 28px;border-radius:20px;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,.08)}}
-.b{{display:inline-block;background:#dcfce7;color:#15803d;font-weight:700;padding:6px 16px;border-radius:999px;font-size:13px}}
-h2{{color:#0f172a}}p{{color:#64748b;line-height:1.6}}</style></head>
+.c{{background:#fff;max-width:480px;padding:40px 28px;border-radius:20px;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,.08)}}
+.b{{display:inline-block;background:#dcfce7;color:#15803d;font-weight:700;padding:6px 16px;border-radius:999px;font-size:13px;margin-bottom:12px}}
+h2{{color:#0f172a;margin:10px 0}}p{{color:#64748b;line-height:1.6}}
+.box{{margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0}}
+.btn{{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600}}
+</style></head>
 <body><div class="c"><div style="font-size:54px">🎉</div><div class="b">{t['ok_page_b']}</div>
-<h2>{t['ok_page_t']}</h2><p>{t['ok_page_p']}</p></div></body></html>"""
+<h2>{t['ok_page_t']}</h2><p>{t['ok_page_p']}</p>
+<div class="box"><p style="font-size:13px;color:#64748b;margin-bottom:10px;">{btn_tip}</p>
+<a class="btn" href="https://script.google.com/home/usersettings" target="_blank">{btn_text}</a>
+</div></div></body></html>"""
 
 
 def wait_for_code(port, timeout, t, lang):
@@ -224,13 +253,20 @@ def ensure_mcp_package(t):
         print(t["mcp_fail"].format(c=" ".join(cmd)))
 
 
-def mcp_server_entry(refresh_token):
+def mcp_server_entry(refresh_token, client_id=CLIENT_ID, client_secret=CLIENT_SECRET):
+    exe = sys.executable
+    if sys.platform == "win32" and ("WindowsApps" in exe or not Path(exe).exists()):
+        for v in ["Python312", "Python311", "Python310"]:
+            p = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Python" / v / "python.exe"
+            if p.exists():
+                exe = str(p)
+                break
     return {
-        "command": sys.executable,
+        "command": exe,
         "args": ["-m", "google_workspace_mcp"],
         "env": {
-            "GOOGLE_WORKSPACE_CLIENT_ID": CLIENT_ID,
-            "GOOGLE_WORKSPACE_CLIENT_SECRET": CLIENT_SECRET,
+            "GOOGLE_WORKSPACE_CLIENT_ID": client_id,
+            "GOOGLE_WORKSPACE_CLIENT_SECRET": client_secret,
             "GOOGLE_WORKSPACE_REFRESH_TOKEN": refresh_token,
             "GOOGLE_WORKSPACE_ENABLED_CAPABILITIES": '["drive", "docs", "sheets", "slides", "gmail", "calendar"]',
         },
@@ -292,11 +328,16 @@ def main():
     ap.add_argument("--timeout", type=int, default=300)
     ap.add_argument("--no-browser", action="store_true")
     ap.add_argument("--print-url", action="store_true", help="only print checklist and URL")
+    ap.add_argument("--client-id", default=None, help="Google OAuth Client ID")
+    ap.add_argument("--client-secret", default=None, help="Google OAuth Client Secret")
+    ap.add_argument("--credentials", default=None, help="Path to credentials JSON file downloaded from GCP Console")
     ap.add_argument("--claude", action="store_true", help="also register MCP in Claude Code")
     ap.add_argument("--codex", action="store_true", help="also register MCP in Codex")
     ap.add_argument("--skip-mcp-install", action="store_true")
     a = ap.parse_args()
     t = T[a.lang]
+
+    client_id, client_secret = resolve_credentials(a)
 
     try:
         sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles
@@ -304,7 +345,7 @@ def main():
         pass
 
     redirect = f"http://localhost:{a.port}"
-    url = build_auth_url(redirect)
+    url = build_auth_url(redirect, client_id=client_id)
     print_checklist(t, a.lang, url)
     if a.print_url:
         return
@@ -322,7 +363,7 @@ def main():
 
     try:
         tok = post_form("https://oauth2.googleapis.com/token", {
-            "code": res["code"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET,
+            "code": res["code"], "client_id": client_id, "client_secret": client_secret,
             "redirect_uri": redirect, "grant_type": "authorization_code",
         })
     except Exception as e:
@@ -347,7 +388,7 @@ def main():
             "token_type": tok.get("token_type"),
             "expiry_date": int(time.time() * 1000) + int(tok.get("expires_in", 3600)) * 1000,
         },
-        "oauth2ClientSettings": {"clientId": CLIENT_ID, "clientSecret": CLIENT_SECRET, "redirectUri": redirect},
+        "oauth2ClientSettings": {"clientId": client_id, "clientSecret": client_secret, "redirectUri": redirect},
         "isLocalCreds": False,
     }
     cp = Path.home() / ".clasprc.json"
@@ -361,16 +402,31 @@ def main():
 
     if not a.skip_mcp_install:
         ensure_mcp_package(t)
-    entry = mcp_server_entry(tok.get("refresh_token"))
+    entry = mcp_server_entry(tok.get("refresh_token"), client_id=client_id, client_secret=client_secret)
     write_antigravity(entry, t)
     if a.claude:
         write_claude(entry, t)
     if a.codex:
         write_codex(entry, t)
 
+    # check Apps Script API switch
+    try:
+        req = urllib.request.Request("https://script.googleapis.com/v1/processes?pageSize=1",
+                                     headers={"Authorization": "Bearer " + tok.get("access_token", "")})
+        urllib.request.urlopen(req, timeout=10).read()
+        print("✅ Apps Script API 開關已確認為：開啟 (On)" if a.lang == "zh" else "✅ Apps Script API switch is On")
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="ignore")
+        if "disabled" in body or "not been used" in body or "User has not enabled" in body:
+            print("⚠️ 注意：Apps Script API 開關目前是【關閉 (Off)】！請至 https://script.google.com/home/usersettings 切換為 On" if a.lang == "zh" else "⚠️ Note: Apps Script API switch is Off. Enable at https://script.google.com/home/usersettings")
+
     print()
     print(t["warn_secret"])
     print(t["done"])
+    if a.lang == "zh":
+        print()
+        print("💡【下一步】如果您要建立員工打卡系統或 Web App，請直接告訴 AI：")
+        print("   「請幫我用 appscript_skill 建立員工打卡系統並發布成 Web App！」")
     if missing:
         sys.exit(2)
 

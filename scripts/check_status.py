@@ -114,6 +114,8 @@ def main():
         body = e.read().decode(errors="ignore")
         if "disabled" in body or "has not been used" in body or "User has not enabled" in body:
             print(m["api_off"])
+        elif "ACCESS_TOKEN_SCOPE_INSUFFICIENT" in body or "insufficient authentication scopes" in body:
+            print("⚠️ Apps Script API 權限未包含在 Token 中（授權時漏勾 Apps Script 相關項目，請按【全選】重新授權）" if a.lang == "zh" else "⚠️ Token lacks Apps Script scopes. Please re-run and click [Select all].")
         else:
             print(m["api_other"].format(e=f"{e.code} {body[:200]}"))
 

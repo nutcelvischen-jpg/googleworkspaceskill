@@ -78,17 +78,22 @@ git clone https://github.com/nutcelvischen-jpg/googleworkspaceskill ~/.codex/ski
 ```
 英文版：在 `git clone` 後加 `-b en`。
 
-直接執行（Windows / macOS / Linux 都可，只需 Python 3.8+）：
-```bash
-python scripts/easy_auth.py          # 授權
-python scripts/check_status.py       # 健康檢查（不會在你的帳號建立任何東西）
-```
+直接執行：
+- **Windows（推薦！原生免 Python 零依賴）**：
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts/easy_auth.ps1       # 授權
+  powershell -ExecutionPolicy Bypass -File scripts/check_status.ps1    # 健康檢查
+  ```
+- **macOS / Linux（或跨平台 Python 3.8+）**：
+  ```bash
+  python3 scripts/easy_auth.py          # 授權
+  python3 scripts/check_status.py       # 健康檢查
+  ```
 
 | 參數 | 用途 |
 |---|---|
-| `--print-url` | 只印出授權清單與連結 |
+| `--print-url` / `-PrintUrl` | 只印出授權清單與連結 |
 | `--claude` / `--codex` | 同時註冊到 Claude Code / Codex |
-| `--port 54322` | 54321 被佔用時改用 |
 | `--lang en` | 英文輸出 |
 
 ---
@@ -101,8 +106,10 @@ googleworkspaceskill/
 ├── README.md                             # 本說明
 ├── references/student_oauth_cheatsheet.md # 4 個畫面圖解 + 錯誤對照表
 └── scripts/
-    ├── easy_auth.py                      # 一鍵授權精靈
-    └── check_status.py                   # 授權健康檢查
+    ├── easy_auth.ps1                     # [NEW] Windows 原生一鍵授權精靈 (免裝 Python)
+    ├── check_status.ps1                  # [NEW] Windows 原生健康檢查
+    ├── easy_auth.py                      # 跨平台 Python 授權精靈
+    └── check_status.py                   # 跨平台 Python 健康檢查
 ```
 
 ## 🔒 安全說明

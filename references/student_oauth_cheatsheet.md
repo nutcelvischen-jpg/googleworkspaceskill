@@ -45,8 +45,8 @@ flowchart TD
 | `403 Insufficient Permission` 或精靈顯示「缺少權限」 | 畫面 3 漏勾 | 請 AI 重跑授權，按【全選】 |
 | `Access blocked` / 存取遭封鎖 | 學校或公司帳號限制 | 改用個人 @gmail.com |
 | `This site can't be reached (localhost:54321)` | 精靈已逾時（5 分鐘）或沒在執行 | 請 AI 重新啟動授權 |
-| 連接埠被佔用 | 54321 被其他程式用 | 請 AI 加 `--port 54322` 重跑 |
-| `python` 找不到 | 電腦沒裝 Python | 請 AI 幫你安裝 Python 3 |
+| 連接埠被佔用 | 54321 被先前未結束的視窗佔用 | 關閉先前命令視窗，稍候 5 秒重試 |
+| `python` 找不到 | 電腦沒裝 Python 或沒加進 PATH | Windows 請直接使用 `easy_auth.ps1`（零依賴免裝 Python） |
 | 授權成功但 AI 看不到 Google 工具 | MCP 還沒重新載入 | 重新啟動 AI 工具 |
 
 ## 安全提醒
